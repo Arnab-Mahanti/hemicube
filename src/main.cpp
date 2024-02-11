@@ -6,9 +6,11 @@
 #include <fstream>
 #include <sstream>
 
+#include "Utility.h"
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexBufferLayout.h"
 #include "VertexArray.h"
 #include "Shader.h"
 
@@ -56,27 +58,18 @@ int main(int, char **)
         layout.Push<float>(2);
         va.AddBuffer(vb, layout);
         IndexBuffer ib(indices, 6);
-        Shader program("C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.vert",
+        Shader shader("C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.vert",
                        "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.frag");
 
-        vb.Unbind();
-        va.Unbind();
-        ib.Unbind();
-        program.Unbind();
-        // glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        Renderer renderer;
 
         float r = 0.0f;
         float increment = 0.05f;
         while (!glfwWindowShouldClose(window))
         {
-            GL_Call(glClear(GL_COLOR_BUFFER_BIT));
-
-            va.Bind();
-            ib.Bind();
-            program.Bind();
-            program.SetUniform4f("u_Color", r, 0.0f, 0.0f, 1.0f);
-
-            GL_Call(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+            renderer.Clear();
+            renderer.Draw(va, ib, shader);
+            shader.SetUniform4f("u_Color", r, 0.0f, 0.0f, 1.0f);
 
             if (r >= 1.0f)
                 increment = -0.05f;

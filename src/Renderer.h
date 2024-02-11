@@ -3,13 +3,16 @@
 #include <iostream>
 #include <glad/glad.h>
 
-#define GL_ASSERT(x) \
-    if (!(x))        \
-        __debugbreak();
-#define GL_Call(x)  \
-    GLClearError(); \
-    x;              \
-    GL_ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#include "Utility.h"
+#include "VertexArray.h"
+#include "IndexBuffer.h"
+#include "Shader.h"
 
-void GLClearError();
-bool GLLogCall(const char *function, const char *file, int line);
+class Renderer
+{
+private:
+    /* data */
+public:
+    void Draw(const VertexArray &va, const IndexBuffer &ib, const Shader &shader) const;
+    void Clear() const;
+};
