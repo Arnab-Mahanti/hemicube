@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utility.h"
+#include "glm/glm.hpp"
 #include <string>
 #include <unordered_map>
 
@@ -22,5 +23,5 @@ public:
 
     void SetUniform4f(const std::string &name, float v0, float v1, float v3, float v4);
     void SetUniform1i(const std::string &name, int v0);
-
+    void SetUniformMat4f(const std::string &name, const glm::mat4 &matrix);
 };

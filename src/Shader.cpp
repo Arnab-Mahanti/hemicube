@@ -72,6 +72,24 @@ void Shader::SetUniform1i(const std::string &name, int v0)
     GL_Call(glUniform1i(location, v0));
 }
 
+void Shader::SetUniformMat4f(const std::string &name, const glm::mat4 &matrix)
+{
+    int location;
+    if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
+        location = m_UniformLocationCache[name];
+
+    else
+    {
+        location = glGetUniformLocation(m_RendererID, name.c_str());
+        m_UniformLocationCache[name] = location;
+    }
+    if (location == -1)
+    {
+        std::cout << "[WARNING] : Uniform " << name << " could not be found!" << std::endl;
+    }
+    GL_Call(glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]));
+}
+
 void Shader::CompileShader(const std::string &vertexShader, const std::string &fragmentShader)
 {
 

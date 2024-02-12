@@ -1,7 +1,6 @@
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
 
-
 VertexArray::VertexArray()
 {
     GL_Call(glGenVertexArrays(1, &m_RendererID));
@@ -17,9 +16,9 @@ void VertexArray::AddBuffer(const VertexBuffer &vb, const VertexBufferLayout &la
     Bind();
     vb.Bind();
     const auto &elements = layout.GetElements();
+    uint32_t offset = 0;
     for (size_t i = 0; i < elements.size(); i++)
     {
-        uint32_t offset = 0;
         auto &element = elements[i];
         GL_Call(glEnableVertexAttribArray(i));
         GL_Call(glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), (const void *)offset));

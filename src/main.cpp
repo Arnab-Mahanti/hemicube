@@ -15,6 +15,9 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 int main(int, char **)
 {
     if (!glfwInit())
@@ -64,6 +67,9 @@ int main(int, char **)
 
         va.AddBuffer(vb, layout);
         IndexBuffer ib(indices, 6);
+
+        glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+
         Shader shader("C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.vert",
                       "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.frag");
         Texture texture("C:/Users/Arnab Mahanti/source/repos/hemicube/res/texture/ISRO-logo.png");
@@ -71,6 +77,7 @@ int main(int, char **)
         texture.Bind();
         shader.Bind();
         shader.SetUniform1i("u_Texture", 0);
+        shader.SetUniformMat4f("u_MVP", proj);
         Renderer renderer;
 
         float r = 0.0f;
@@ -79,7 +86,7 @@ int main(int, char **)
         {
             renderer.Clear();
             renderer.Draw(va, ib, shader);
-            shader.SetUniform4f("u_Color", r, 0.0f, 0.0f, 1.0f);
+            // shader.SetUniform4f("u_Color", r, 0.0f, 0.0f, 1.0f);
 
             if (r >= 1.0f)
                 increment = -0.05f;
