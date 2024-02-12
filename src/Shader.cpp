@@ -38,7 +38,7 @@ void Shader::Unbind() const
 
 void Shader::SetUniform4f(const std::string &name, float v0, float v1, float v2, float v3)
 {
-    uint32_t location;
+    int location;
     if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
         location = m_UniformLocationCache[name];
 
@@ -52,6 +52,24 @@ void Shader::SetUniform4f(const std::string &name, float v0, float v1, float v2,
         std::cout << "[WARNING] : Uniform " << name << " could not be found!" << std::endl;
     }
     GL_Call(glUniform4f(location, v0, v1, v2, v3));
+}
+
+void Shader::SetUniform1i(const std::string &name, int v0)
+{
+    int location;
+    if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
+        location = m_UniformLocationCache[name];
+
+    else
+    {
+        location = glGetUniformLocation(m_RendererID, name.c_str());
+        m_UniformLocationCache[name] = location;
+    }
+    if (location == -1)
+    {
+        std::cout << "[WARNING] : Uniform " << name << " could not be found!" << std::endl;
+    }
+    GL_Call(glUniform1i(location, v0));
 }
 
 void Shader::CompileShader(const std::string &vertexShader, const std::string &fragmentShader)

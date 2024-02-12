@@ -9,9 +9,9 @@ find_package(OpenGL REQUIRED)
 include_directories("./dependencies/include/")
 link_directories("./dependencies/lib/")
 
-file(GLOB_RECURSE HEMICUBE_SRC "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE HEMICUBE_SRC "src/*.cpp" "src/*.h" "dependencies/src/*.c" "dependencies/src/*.cpp")
 
 include_directories(src)
-add_executable(hemicube ${HEMICUBE_SRC} dependencies/src/glad.c)
+add_executable(hemicube ${HEMICUBE_SRC})
 target_link_libraries(hemicube PRIVATE glfw3 OpenGL::GL)
 

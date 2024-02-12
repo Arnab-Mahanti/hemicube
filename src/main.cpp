@@ -13,6 +13,7 @@
 #include "VertexBufferLayout.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "Texture.h"
 
 int main(int, char **)
 {
@@ -43,24 +44,33 @@ int main(int, char **)
 
     {
         float positions[] = {
-            -0.5f, -0.5f,
-            -0.5f, 0.5f,
-            0.5f, 0.5f,
-            0.5f, -0.5f};
+            -0.5f, -0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.0f, 1.0f,
+            0.5f, 0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, 1.0f, 0.0f};
 
         uint32_t indices[] = {
             0, 1, 2,
             2, 3, 0};
 
+        GL_Call(glEnable(GL_BLEND));
+        GL_Call(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC1_ALPHA));
+
         VertexArray va;
         VertexBufferLayout layout;
         VertexBuffer vb(positions, sizeof(positions));
         layout.Push<float>(2);
+        layout.Push<float>(2);
+
         va.AddBuffer(vb, layout);
         IndexBuffer ib(indices, 6);
         Shader shader("C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.vert",
-                       "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.frag");
+                      "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.frag");
+        Texture texture("C:/Users/Arnab Mahanti/source/repos/hemicube/res/texture/ISRO-logo.png");
 
+        texture.Bind();
+        shader.Bind();
+        shader.SetUniform1i("u_Texture", 0);
         Renderer renderer;
 
         float r = 0.0f;
