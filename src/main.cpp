@@ -5,6 +5,7 @@
 #include <string_view>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 #include "Utility.h"
 #include "Renderer.h"
@@ -41,7 +42,11 @@ int main(int, char **)
 
     glfwMakeContextCurrent(window);
     gladLoadGL();
-    glfwSwapInterval(2);
+    glfwSwapInterval(4);
+
+    glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height)
+                              { GL_Call(glViewport(0, 0, width, height)); });
+
     std::cout << glGetString(GL_VERSION) << "\n";
     std::cout << glGetString(GL_RENDERER) << "\n";
 
@@ -80,22 +85,19 @@ int main(int, char **)
         shader.SetUniformMat4f("u_MVP", proj);
         Renderer renderer;
 
-        float r = 0.0f;
-        float increment = 0.05f;
+        std::string title;
         while (!glfwWindowShouldClose(window))
         {
+            auto start = std::chrono::high_resolution_clock::now();
+
             renderer.Clear();
             renderer.Draw(va, ib, shader);
-            // shader.SetUniform4f("u_Color", r, 0.0f, 0.0f, 1.0f);
-
-            if (r >= 1.0f)
-                increment = -0.05f;
-            if (r <= 0.0f)
-                increment = 0.05f;
-
-            r += increment;
-
             glfwSwapBuffers(window);
+
+            auto frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
+            title = "Hemicube;  FT: " + std::to_string(frameTime) + "ms; FPS: " + std::to_string(1000.0 / frameTime);
+            glfwSetWindowTitle(window, title.c_str());
+
             glfwPollEvents();
         }
     }
