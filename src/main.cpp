@@ -19,6 +19,9 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+static constexpr auto windowWidth = 800;
+static constexpr auto windowHeight = 600;
+
 int main(int, char **)
 {
     if (!glfwInit())
@@ -30,7 +33,7 @@ int main(int, char **)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    auto window = glfwCreateWindow(800, 600, "hemicube", NULL, NULL);
+    auto window = glfwCreateWindow(windowWidth, windowHeight, "hemicube", NULL, NULL);
     if (!window)
     {
         const char *description;
@@ -73,7 +76,7 @@ int main(int, char **)
         va.AddBuffer(vb, layout);
         IndexBuffer ib(indices, 6);
 
-        glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
 
         Shader shader("C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.vert",
                       "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.frag");
@@ -82,15 +85,18 @@ int main(int, char **)
         texture.Bind();
         shader.Bind();
         shader.SetUniform1i("u_Texture", 0);
-        shader.SetUniformMat4f("u_MVP", proj);
         Renderer renderer;
 
         std::string title;
+        int width, height;
         while (!glfwWindowShouldClose(window))
         {
+            glfwGetWindowSize(window, &width, &height);
             auto start = std::chrono::high_resolution_clock::now();
 
             renderer.Clear();
+            auto proj = glm::scale(glm::ortho(-1.0f, 1.0f, -float(height) / width, float(height) / width, -1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+            shader.SetUniformMat4f("u_MVP", proj * view);
             renderer.Draw(va, ib, shader);
             glfwSwapBuffers(window);
 
