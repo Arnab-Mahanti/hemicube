@@ -45,13 +45,16 @@ int main(int, char **)
 
     glfwMakeContextCurrent(window);
     gladLoadGL();
-    glfwSwapInterval(4);
+    glfwSwapInterval(1);
 
     glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height)
                               { GL_Call(glViewport(0, 0, width, height)); });
 
-    std::cout << glGetString(GL_VERSION) << "\n";
+    std::cout << glGetString(GL_VENDOR) << "\n";
     std::cout << glGetString(GL_RENDERER) << "\n";
+    std::cout << glGetString(GL_VERSION) << "\n";
+    std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
+
 
     {
         float positions[] = {
@@ -66,6 +69,8 @@ int main(int, char **)
 
         GL_Call(glEnable(GL_BLEND));
         GL_Call(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC1_ALPHA));
+        GL_Call(glEnable(GL_DEPTH_TEST));
+        GL_Call(glDepthFunc(GL_LESS));
 
         VertexArray va;
         VertexBufferLayout layout;
@@ -75,8 +80,6 @@ int main(int, char **)
 
         va.AddBuffer(vb, layout);
         IndexBuffer ib(indices, 6);
-
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
 
         Shader shader("C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.vert",
                       "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.frag");
@@ -89,15 +92,39 @@ int main(int, char **)
 
         std::string title;
         int width, height;
+        glm::vec3 redpos(0.f, 0.f, -10.f);
+        constexpr auto speed = 0.05f;
         while (!glfwWindowShouldClose(window))
         {
             glfwGetWindowSize(window, &width, &height);
             auto start = std::chrono::high_resolution_clock::now();
 
             renderer.Clear();
-            auto proj = glm::scale(glm::ortho(-1.0f, 1.0f, -float(height) / width, float(height) / width, -1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+            // auto proj = glm::scale(glm::ortho(-1.0f, 1.0f, -float(height) / width, float(height) / width, -1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+            auto proj = glm::perspective(glm::radians(45.f), float(height) / width, .1f, 100.f);
+
+            glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -10.0f));
             shader.SetUniformMat4f("u_MVP", proj * view);
+            shader.SetUniform4f("u_Color", 0.0f, 1.f, 0.f, 1.f);
             renderer.Draw(va, ib, shader);
+
+            view = glm::translate(glm::mat4(1.f), redpos);
+            shader.SetUniformMat4f("u_MVP", proj * view);
+            shader.SetUniform4f("u_Color", 1.0f, 0.f, 0.f, 1.f);
+            renderer.Draw(va, ib, shader);
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+                redpos.y += speed;
+            else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+                redpos.x -= speed;
+            else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+                redpos.y -= speed;
+            else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+                redpos.x += speed;
+            else if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+                redpos.z += speed;
+            else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+                redpos.z -= speed;
+
             glfwSwapBuffers(window);
 
             auto frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
