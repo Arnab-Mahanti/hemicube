@@ -50,10 +50,12 @@ int main(int, char **)
     glfwMakeContextCurrent(window);
     gladLoadGL();
     glfwSwapInterval(1);
+    glfwSwapInterval(1);
 
     glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height)
                               { GL_Call(glViewport(0, 0, width, height)); });
 
+    std::cout << glGetString(GL_VENDOR) << "\n";
     std::cout << glGetString(GL_VENDOR) << "\n";
     std::cout << glGetString(GL_RENDERER) << "\n";
     std::cout << glGetString(GL_VERSION) << "\n";
@@ -80,6 +82,8 @@ int main(int, char **)
         GL_Call(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC1_ALPHA));
         GL_Call(glEnable(GL_DEPTH_TEST));
         GL_Call(glDepthFunc(GL_LESS));
+        GL_Call(glEnable(GL_DEPTH_TEST));
+        GL_Call(glDepthFunc(GL_LESS));
 
         VertexArray va;
         VertexBufferLayout layout;
@@ -103,6 +107,8 @@ int main(int, char **)
         int width, height;
         glm::vec3 redpos(0.f, 0.f, -10.f);
         constexpr auto speed = 0.05f;
+        glm::vec3 redpos(0.f, 0.f, -10.f);
+        constexpr auto speed = 0.05f;
         while (!glfwWindowShouldClose(window))
         {
             glfwGetWindowSize(window, &width, &height);
@@ -119,6 +125,7 @@ int main(int, char **)
 
             view = glm::translate(glm::mat4(1.f), redpos);
             shader.SetUniformMat4f("u_MVP", proj * view);
+            shader.SetUniform4f("u_Color", 1.0f, 0.f, 0.f, 1.f);
             shader.SetUniform4f("u_Color", 1.0f, 0.f, 0.f, 1.f);
             renderer.Draw(va, ib, shader);
 
