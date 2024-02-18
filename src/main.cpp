@@ -107,8 +107,6 @@ int main(int, char **)
         int width, height;
         glm::vec3 redpos(0.f, 0.f, -10.f);
         constexpr auto speed = 0.05f;
-        glm::vec3 redpos(0.f, 0.f, -10.f);
-        constexpr auto speed = 0.05f;
         while (!glfwWindowShouldClose(window))
         {
             glfwGetWindowSize(window, &width, &height);
