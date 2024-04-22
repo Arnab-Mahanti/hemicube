@@ -11,11 +11,12 @@ private:
     uint32_t m_RendererID;
     std::string m_vfilepath;
     std::string m_ffilepath;
+    std::string m_gfilepath;
     std::unordered_map<std::string, int> m_UniformLocationCache;
-    void Shader::CompileShader(const std::string &vertexShader, const std::string &fragmentShader);
+    void Shader::CompileShader(const std::string &vertexShader, const std::string &fragmentShader, const std::string& geometryShader);
 
 public:
-    Shader(const std::string &vfilepath, const std::string &ffilepath);
+    Shader(const std::string &vfilepath, const std::string &ffilepath, const std::string& gfilepath);
     ~Shader();
 
     void Bind() const;

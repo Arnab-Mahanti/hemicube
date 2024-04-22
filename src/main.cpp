@@ -15,6 +15,7 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Framebuffer.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -36,13 +37,14 @@ int main(int, char **)
         return -1;
     }
 
-    Mesh2D mesh("C:/Users/Arnab Mahanti/Downloads/hemicube/res/mesh/square_mesh.dat");
+    Mesh2D mesh("C:/Users/Arnab Mahanti/Downloads/hemicube/res/mesh/valve_mesh.dat");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     auto window = glfwCreateWindow(windowWidth, windowHeight, "hemicube", NULL, NULL);
     if (!window)
     {
@@ -55,7 +57,7 @@ int main(int, char **)
 
     glfwMakeContextCurrent(window);
     gladLoadGL();
-    glfwSwapInterval(2);
+    glfwSwapInterval(1);
 
     glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height)
                               { GL_Call(glViewport(0, 0, width, height)); });
@@ -64,6 +66,13 @@ int main(int, char **)
     std::cout << glGetString(GL_RENDERER) << "\n";
     std::cout << glGetString(GL_VERSION) << "\n";
     std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
+
+    GLint vdims[2];
+    glGetIntegerv(GL_MAX_VIEWPORT_DIMS, vdims);
+    std::cout << "Max Viewport: " << vdims[0] << " X " << vdims[1] << "\n";
+
+    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, vdims);
+    std::cout << "Max Renderbuffer Size: " << vdims[0] << "\n";
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -86,34 +95,27 @@ int main(int, char **)
         GL_Call(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         GL_Call(glEnable(GL_DEPTH_TEST));
         GL_Call(glDepthFunc(GL_LESS));
-        
-
-        // VertexArray va;
-        // VertexBufferLayout layout;
-        // VertexBuffer vb(positions, sizeof(positions));
-        // layout.Push<float>(2);
-        // layout.Push<float>(2);
-
-        // va.AddBuffer(vb, layout);
-        // IndexBuffer ib(indices, 6);
 
         VertexArray va;
         VertexBufferLayout layout;
-        VertexBuffer vb(mesh.GetVertices(), mesh.GetVertexSize());
+        VertexBuffer vb(mesh.GetVertices(), static_cast<uint32_t>(mesh.GetVertexSize()));
         layout.Push<float>(3);
         layout.Push<float>(4);
 
         va.AddBuffer(vb, layout);
-        IndexBuffer ib(mesh.GetIndices(), mesh.GetIndexCount());
+        IndexBuffer ib(mesh.GetIndices(), static_cast<uint32_t>(mesh.GetIndexCount()));
 
-        Shader shader("C:/Users/Arnab Mahanti/Downloads/hemicube/res/shader/shader.vert",
-                      "C:/Users/Arnab Mahanti/Downloads/hemicube/res/shader/shader.frag");
-        Texture texture("C:/Users/Arnab Mahanti/Downloads/hemicube/res/mesh/square_mesh.dat");
-
-        texture.Bind();
+        Shader shader("C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.vert",
+                      "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.frag",
+                      "C:/Users/Arnab Mahanti/source/repos/hemicube/res/shader/shader.geom");
         shader.Bind();
-        // shader.SetUniform1i("u_Texture", 0);
+
         Renderer renderer;
+
+        FramebufferSpecification fbspec;
+        fbspec.width = windowWidth;
+        fbspec.height = windowHeight;
+        Framebuffer framebuffer(fbspec);
 
         std::string title;
         int width, height;
@@ -125,6 +127,7 @@ int main(int, char **)
             glfwGetWindowSize(window, &width, &height);
             auto start = std::chrono::high_resolution_clock::now();
 
+            framebuffer.Bind();
             renderer.Clear();
 
             auto proj = glm::perspective(glm::radians(45.f), float(width) / height, .1f, scale);
@@ -162,20 +165,17 @@ int main(int, char **)
             // {
             //     if (ImGui::BeginMenu("Load"))
             //     {
-            //         if (/* condition */)
-            //         {
-            //             /* code */
-            //         }
-                    
+            //         std::cout << "MEnu\n";
             //         ImGui::EndMenu();
             //     }
-                
+
             //     ImGui::EndMenuBar();
             // }
-            // // ImGui::ShowDemoWindow();
+            // ImGui::ShowDemoWindow();
             // ImGui::Render();
             // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+            
+            framebuffer.Blit();
             glfwSwapBuffers(window);
 
             auto frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
@@ -185,8 +185,6 @@ int main(int, char **)
             glfwPollEvents();
         }
     }
-    
-    
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
